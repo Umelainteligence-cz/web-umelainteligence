@@ -18,6 +18,14 @@
 
 @theme {
   --font-heading: "Renesance Sans", system-ui, sans-serif;
+  --font-body: "TikTok Sans", system-ui, sans-serif;
+  --color-cream: #E9E8E0;
+  --color-cream-dark: #D7D6CE;
+  --color-emerald: #2AB573;
+  --color-emerald-dark: #1E9A5F;
+  --color-ink: #1A1A18;
+  --color-ink-light: #3D3D38;
+  --color-gold: #B8A67A;
 }
 
 @layer base {
@@ -26,10 +34,45 @@
   }
 
   body {
-    @apply text-gray-800 antialiased;
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }
+}
+
+@layer components {
+  .hero-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-cream) 0%,
+      #EAEAE1 100%,
+      var(--color-cream) 100%
+    );
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes draw-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
