@@ -2,16 +2,8 @@
 
 @font-face {
   font-family: "Renesance Sans";
-  src: url("/fonts/Renesance-Sans-Regular.ttf") format("truetype");
+  src: url("/fonts/RenesanceSans-Regular.woff2") format("woff2");
   font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Renesance Sans";
-  src: url("/fonts/Renesance-Sans-Bold.ttf") format("truetype");
-  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
