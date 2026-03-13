@@ -1,0 +1,2116 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nabídka — SANO — UměláInteligence.cz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      @font-face {
+        font-family: 'Renesance Sans';
+        src: url('fonts/RenesanceSans-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Renesance Sans';
+        src: url('fonts/RenesanceSans-Bold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Renesance Sans';
+        src: url('fonts/RenesanceSans-Extrabold.woff2') format('woff2');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* ================================================================
+         DESIGN TOKENS
+         ================================================================ */
+      :root {
+        --parchment: #f5f0e8;
+        --parchment-dark: #ede8dc;
+        --parchment-mid: #eae4d6;
+        --ink: #1e1a14;
+        --ink-mid: #3a3020;
+        --ink-light: #5a4d38;
+        --gold: #8b6914;
+        --gold-light: #c4a040;
+        --gold-faint: #f0e6c8;
+        --border: #c4a96b;
+        --serif: "Renesance Sans", Arial, sans-serif;
+        --body: "TikTok Sans", Arial, sans-serif;
+      }
+
+      /* ================================================================
+         RESET
+         ================================================================ */
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-snap-type: y mandatory;
+        zoom: 1.5;
+        scroll-snap-stop: always;
+      }
+      body {
+        background: var(--parchment);
+        color: var(--ink);
+        font-family: var(--body);
+        overflow-x: hidden;
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      /* ================================================================
+         VITRUVIAN WATERMARK (fixed background)
+         ================================================================ */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 80vmin;
+        height: 80vmin;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Ccircle cx='300' cy='300' r='280' fill='none' stroke='%238B6914' stroke-width='0.8'/%3E%3Ccircle cx='300' cy='300' r='196' fill='none' stroke='%238B6914' stroke-width='0.6'/%3E%3Ccircle cx='300' cy='300' r='112' fill='none' stroke='%238B6914' stroke-width='0.4'/%3E%3Cline x1='20' y1='300' x2='580' y2='300' stroke='%238B6914' stroke-width='0.4'/%3E%3Cline x1='300' y1='20' x2='300' y2='580' stroke='%238B6914' stroke-width='0.4'/%3E%3Cline x1='102' y1='102' x2='498' y2='498' stroke='%238B6914' stroke-width='0.3'/%3E%3Cline x1='498' y1='102' x2='102' y2='498' stroke='%238B6914' stroke-width='0.3'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+      }
+
+      /* ================================================================
+         SECTIONS (fullscreen, scroll-snap)
+         ================================================================ */
+      .chapter {
+        height: 100vh;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 80px 48px;
+        position: relative;
+        z-index: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 1s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .chapter-locked {
+        opacity: 0.12;
+        filter: blur(5px);
+        pointer-events: none;
+        transform: scale(0.98);
+      }
+      .chapter-locked .chapter-inner {
+        user-select: none;
+      }
+      .chapter-inner {
+        max-width: 960px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* ================================================================
+         DIVIDERS between sections
+         ================================================================ */
+      .section-divider {
+        height: 0;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+      }
+      /* Divider rendered as top border on non-hero chapters */
+      .chapter:not(.hero)::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        z-index: 2;
+      }
+      .chapter:not(.hero)::after {
+        content: "\25C6";
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 9px;
+        color: var(--gold);
+        background: var(--parchment);
+        padding: 0 12px;
+        z-index: 3;
+      }
+
+      /* ================================================================
+         REVEAL ANIMATIONS
+         ================================================================ */
+      .reveal {
+        opacity: 0;
+        transform: translateY(36px);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-delay-1 { transition-delay: 0.1s; }
+      .reveal-delay-2 { transition-delay: 0.2s; }
+      .reveal-delay-3 { transition-delay: 0.35s; }
+      .reveal-delay-4 { transition-delay: 0.5s; }
+      .reveal-delay-5 { transition-delay: 0.65s; }
+      .reveal-delay-6 { transition-delay: 0.8s; }
+
+      /* ================================================================
+         HERO ANIMATIONS
+         ================================================================ */
+      @keyframes hero-line {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      @keyframes hero-fade {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes float-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      @keyframes slow-rotate {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+      .hero-line {
+        animation: hero-line 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      .hero-fade { animation: hero-fade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .hero-fade-d1 { animation-delay: 0.3s; opacity: 0; }
+      .hero-fade-d2 { animation-delay: 0.6s; opacity: 0; }
+      .hero-fade-d3 { animation-delay: 0.9s; opacity: 0; }
+      .hero-fade-d4 { animation-delay: 1.2s; opacity: 0; }
+
+      /* ================================================================
+         TYPOGRAPHY COMPONENTS
+         ================================================================ */
+      .section-label {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      .section-heading {
+        font-family: var(--serif);
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 600;
+        color: var(--ink);
+        line-height: 1.2;
+        margin-bottom: 24px;
+      }
+      .section-body {
+        font-size: 17px;
+        line-height: 1.7;
+        color: var(--ink-light);
+        max-width: 640px;
+      }
+      .section-body strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      /* ================================================================
+         TOP BAR (fixed)
+         ================================================================ */
+      .top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 48px;
+        background: rgba(245, 240, 232, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(196, 169, 107, 0.2);
+        opacity: 0;
+        transform: translateY(-100%);
+        transition: opacity 0.5s, transform 0.5s;
+      }
+      .top-bar.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .top-bar-logo {
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .top-bar-logo span { color: var(--gold); }
+      .top-bar-meta {
+        font-family: var(--body);
+        font-size: 12px;
+        color: var(--ink-light);
+        letter-spacing: 0.08em;
+      }
+
+      /* ================================================================
+         PROGRESS SIDEBAR (fixed right)
+         ================================================================ */
+      .progress-sidebar {
+        position: fixed;
+        right: 28px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 99;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+      .progress-line {
+        width: 1px;
+        height: 24px;
+        background: var(--border);
+        opacity: 0.3;
+        transition: background 0.4s, opacity 0.4s;
+      }
+      .progress-line.active {
+        background: var(--gold);
+        opacity: 1;
+      }
+      .progress-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1.5px solid var(--border);
+        background: transparent;
+        cursor: default;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+      }
+      .progress-dot.completed {
+        border-color: var(--gold);
+        background: transparent;
+        cursor: pointer;
+      }
+      .progress-dot.active {
+        border-color: var(--gold);
+        background: var(--gold);
+        width: 12px;
+        height: 12px;
+        cursor: pointer;
+      }
+      .progress-dot.locked {
+        border-color: #c4a96b50;
+        cursor: default;
+      }
+      .progress-dot-label {
+        position: absolute;
+        right: 22px;
+        top: 50%;
+        transform: translateY(-50%);
+        white-space: nowrap;
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--gold);
+        background: var(--parchment);
+        padding: 3px 8px;
+        border: 1px solid rgba(196, 169, 107, 0.3);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .progress-dot:hover .progress-dot-label {
+        opacity: 1;
+      }
+
+      /* ================================================================
+         HERO SECTION
+         ================================================================ */
+      .hero {
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-compass {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 50vmin;
+        height: 50vmin;
+        opacity: 0.04;
+        animation: slow-rotate 120s linear infinite;
+        pointer-events: none;
+      }
+      .hero-overline {
+        height: 1px;
+        background: var(--gold);
+        margin: 0 auto 24px;
+        max-width: 120px;
+      }
+      .hero-label {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 20px;
+      }
+      .hero-title {
+        font-family: var(--serif);
+        font-size: clamp(36px, 6vw, 64px);
+        font-weight: 700;
+        line-height: 1.1;
+        color: var(--ink);
+        margin-bottom: 12px;
+      }
+      .hero-title em {
+        font-style: italic;
+        font-weight: 600;
+        color: var(--ink-mid);
+      }
+      .hero-subtitle {
+        font-family: var(--serif);
+        font-size: clamp(18px, 2.5vw, 26px);
+        font-weight: 400;
+        font-style: italic;
+        color: var(--ink-light);
+        margin-bottom: 40px;
+      }
+      .hero-meta {
+        font-family: var(--body);
+        font-size: 13px;
+        color: var(--ink-light);
+        letter-spacing: 0.05em;
+      }
+      .hero-meta span {
+        margin: 0 8px;
+        color: var(--gold);
+      }
+      .scroll-hint {
+        position: absolute;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: float-bounce 2.5s ease-in-out infinite;
+        color: var(--gold);
+        font-size: 13px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        text-align: center;
+      }
+      .scroll-hint svg {
+        display: block;
+        margin: 6px auto 0;
+      }
+
+      /* ================================================================
+         METRIC CALLOUT CARD
+         ================================================================ */
+      .metric-card {
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.3);
+        border-left: 3px solid var(--gold);
+        padding: 24px 32px;
+        margin-top: 32px;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 12px;
+      }
+      .metric-value {
+        font-family: var(--serif);
+        font-size: clamp(36px, 5vw, 56px);
+        font-weight: 700;
+        color: var(--gold);
+        line-height: 1;
+      }
+      .metric-unit {
+        font-family: var(--body);
+        font-size: 16px;
+        color: var(--ink-light);
+      }
+      .metric-label {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-top: 6px;
+      }
+
+      /* ================================================================
+         PAIN QUOTES
+         ================================================================ */
+      .pain-quote {
+        border-left: 2px solid var(--gold);
+        padding: 8px 0 8px 16px;
+        font-family: var(--body);
+        font-size: 15px;
+        font-style: italic;
+        line-height: 1.5;
+        color: var(--ink-light);
+        margin-bottom: 16px;
+      }
+
+      /* ================================================================
+         OPPORTUNITY CARDS
+         ================================================================ */
+      .opp-card {
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.2);
+        padding: 20px 24px;
+        margin-bottom: 12px;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .opp-card:hover {
+        border-color: var(--gold);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(139, 105, 20, 0.08);
+      }
+      .opp-card-title {
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .opp-card-title::before {
+        content: "\25B8";
+        color: var(--gold);
+        font-size: 12px;
+      }
+      .opp-card-desc {
+        font-size: 14px;
+        color: var(--ink-light);
+        padding-left: 20px;
+      }
+
+      /* ================================================================
+         TWO-COLUMN LAYOUT
+         ================================================================ */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        margin-top: 24px;
+      }
+      .col-heading {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(196, 169, 107, 0.2);
+      }
+
+      /* ================================================================
+         SCOPE PANELS (expandable)
+         ================================================================ */
+      .scope-panel {
+        border: 1px solid rgba(196, 169, 107, 0.25);
+        margin-bottom: 12px;
+        background: var(--parchment-dark);
+        transition: border-color 0.3s;
+      }
+      .scope-panel:hover {
+        border-color: var(--gold);
+      }
+      .scope-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .scope-header-title {
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .scope-header-icon {
+        color: var(--gold);
+        font-size: 12px;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .scope-panel.open .scope-header-icon {
+        transform: rotate(90deg);
+      }
+      .scope-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity 0.4s ease;
+        opacity: 0;
+        padding: 0 24px;
+      }
+      .scope-panel.open .scope-body {
+        max-height: 600px;
+        opacity: 1;
+        padding: 0 24px 20px;
+      }
+      .scope-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 6px 0;
+        font-size: 15px;
+        color: var(--ink-light);
+      }
+      .scope-item-icon {
+        flex-shrink: 0;
+        margin-top: 3px;
+        font-size: 13px;
+      }
+      .scope-item-icon.in { color: var(--gold); }
+      .scope-item-icon.out { color: #a0917a; }
+
+      /* ================================================================
+         TOOL BADGES
+         ================================================================ */
+      .tools-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+      .tool-badge {
+        font-family: var(--body);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold);
+        border: 1px solid rgba(196, 169, 107, 0.35);
+        padding: 5px 14px;
+        border-radius: 999px;
+        transition: all 0.3s;
+      }
+      .tool-badge:hover {
+        border-color: var(--gold);
+        background: var(--gold-faint);
+      }
+
+      /* ================================================================
+         DELIVERABLES LIST
+         ================================================================ */
+      .deliverable-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(196, 169, 107, 0.1);
+      }
+      .deliverable-num {
+        font-family: var(--serif);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--gold);
+        line-height: 1;
+        min-width: 36px;
+        opacity: 0.6;
+      }
+      .deliverable-text {
+        font-size: 15px;
+        color: var(--ink-light);
+        padding-top: 6px;
+      }
+
+      /* ================================================================
+         TIMELINE (horizontal)
+         ================================================================ */
+      .timeline-container {
+        position: relative;
+        margin: 40px 0;
+        padding: 0 20px;
+      }
+      .timeline-track {
+        position: relative;
+        height: 3px;
+        background: rgba(196, 169, 107, 0.15);
+        margin: 60px 0;
+      }
+      .timeline-track-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .timeline-nodes {
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+        top: -8px;
+        left: 0;
+        right: 0;
+      }
+      .timeline-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        position: relative;
+      }
+      .timeline-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+        background: var(--parchment);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 2;
+      }
+      .timeline-node.revealed .timeline-dot {
+        border-color: var(--gold);
+        background: var(--gold);
+      }
+      .timeline-node:hover .timeline-dot {
+        transform: scale(1.3);
+        box-shadow: 0 0 16px rgba(139, 105, 20, 0.25);
+      }
+      .timeline-node-label {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-top: 14px;
+        text-align: center;
+        max-width: 100px;
+        transition: color 0.3s;
+      }
+      .timeline-node.revealed .timeline-node-label {
+        color: var(--gold);
+        font-weight: 600;
+      }
+      .timeline-detail {
+        position: absolute;
+        top: 55px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 220px;
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.3);
+        border-top: 2px solid var(--gold);
+        padding: 16px;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity 0.3s ease;
+        z-index: 10;
+      }
+      .timeline-node.expanded .timeline-detail {
+        max-height: 300px;
+        opacity: 1;
+      }
+      .timeline-detail-title {
+        font-family: var(--serif);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+      .timeline-detail-row {
+        font-size: 12px;
+        color: var(--ink-light);
+        margin-bottom: 4px;
+        display: flex;
+        gap: 6px;
+      }
+      .timeline-detail-row strong {
+        color: var(--ink-mid);
+        font-weight: 600;
+        min-width: 50px;
+      }
+
+      /* ================================================================
+         ROI CARDS
+         ================================================================ */
+      .roi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .roi-card {
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.2);
+        padding: 20px;
+        text-align: center;
+      }
+      .roi-card-metric {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ink-light);
+        margin-bottom: 12px;
+      }
+      .roi-card-before {
+        font-family: var(--serif);
+        font-size: 20px;
+        color: var(--ink-light);
+        text-decoration: line-through;
+        opacity: 0.5;
+        margin-bottom: 4px;
+      }
+      .roi-card-after {
+        font-family: var(--serif);
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--gold);
+        line-height: 1;
+      }
+      .roi-card-benefit {
+        font-size: 12px;
+        color: var(--gold);
+        margin-top: 8px;
+        font-style: italic;
+      }
+
+      /* ================================================================
+         PRICE TABLE
+         ================================================================ */
+      .price-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+      }
+      .price-table th {
+        font-family: var(--body);
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--gold);
+        text-align: left;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--gold);
+        font-weight: 500;
+      }
+      .price-table th:last-child {
+        text-align: right;
+      }
+      .price-table td {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(196, 169, 107, 0.1);
+        font-size: 15px;
+        color: var(--ink-light);
+      }
+      .price-table td:last-child {
+        text-align: right;
+        font-family: var(--serif);
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .price-total-row td {
+        border-top: 2px solid var(--gold);
+        border-bottom: none;
+        padding-top: 16px;
+        font-weight: 600;
+      }
+      .price-total-row td:first-child {
+        font-family: var(--serif);
+        font-size: 16px;
+        color: var(--ink);
+      }
+      .price-total-row td:last-child {
+        font-family: var(--serif);
+        font-size: 24px;
+        color: var(--gold);
+      }
+
+      /* ================================================================
+         VALUE ANCHORING
+         ================================================================ */
+      .value-anchor {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 8px 0;
+        margin-top: 8px;
+      }
+      .value-anchor-label {
+        font-size: 13px;
+        color: var(--ink-light);
+      }
+      .value-anchor-amount {
+        font-family: var(--serif);
+        font-size: 16px;
+        color: var(--ink-light);
+        text-decoration: line-through;
+        opacity: 0.5;
+      }
+
+      /* ================================================================
+         GUARANTEE CARD
+         ================================================================ */
+      .guarantee {
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.3);
+        border-left: 3px solid var(--gold);
+        padding: 24px 28px;
+        margin-top: 32px;
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+      .guarantee-icon {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .guarantee-label {
+        font-family: var(--body);
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 6px;
+      }
+      .guarantee-title {
+        font-family: var(--serif);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 8px;
+        line-height: 1.2;
+      }
+      .guarantee-text {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--ink-light);
+      }
+      .guarantee-text strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      /* ================================================================
+         PAYMENT TERMS
+         ================================================================ */
+      .payment-terms {
+        font-size: 14px;
+        color: var(--ink-light);
+        margin-top: 16px;
+        padding: 12px 0;
+        border-top: 1px solid rgba(196, 169, 107, 0.15);
+      }
+
+      /* ================================================================
+         DIFFERENTIATOR GRID
+         ================================================================ */
+      .diff-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 24px 0;
+      }
+      .diff-card {
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.2);
+        padding: 24px;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .diff-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gold);
+        transform: scaleX(0);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: left;
+      }
+      .diff-card:hover::before {
+        transform: scaleX(1);
+      }
+      .diff-card:hover {
+        border-color: var(--gold);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(139, 105, 20, 0.08);
+      }
+      .diff-card-icon {
+        color: var(--gold);
+        margin-bottom: 12px;
+        opacity: 0.7;
+      }
+      .diff-card-title {
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+      .diff-card-desc {
+        font-size: 14px;
+        color: var(--ink-light);
+        line-height: 1.5;
+      }
+
+      /* ================================================================
+         BRAND TAGLINE
+         ================================================================ */
+      .brand-tagline {
+        font-family: var(--serif);
+        font-size: clamp(20px, 3vw, 30px);
+        font-style: italic;
+        color: var(--gold);
+        text-align: center;
+        margin-top: 48px;
+        line-height: 1.4;
+        opacity: 0.85;
+      }
+
+      /* ================================================================
+         NEXT STEPS MINI-TIMELINE
+         ================================================================ */
+      .steps-timeline {
+        position: relative;
+        padding-left: 36px;
+        margin: 24px 0;
+      }
+      .steps-timeline::before {
+        content: "";
+        position: absolute;
+        left: 12px;
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: var(--gold);
+        opacity: 0.4;
+      }
+      .step-item {
+        position: relative;
+        padding: 12px 0 12px 20px;
+      }
+      .step-num {
+        position: absolute;
+        left: -30px;
+        top: 12px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1.5px solid var(--gold);
+        background: var(--parchment);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--serif);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gold);
+      }
+      .step-title {
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 3px;
+      }
+      .step-desc {
+        font-size: 14px;
+        color: var(--ink-light);
+      }
+
+      /* ================================================================
+         VALIDITY CARD
+         ================================================================ */
+      .validity-card {
+        border: 1px solid rgba(196, 169, 107, 0.3);
+        padding: 16px 24px;
+        margin: 24px 0;
+        text-align: center;
+        font-size: 14px;
+        color: var(--ink-light);
+      }
+      .validity-card strong {
+        color: var(--ink);
+      }
+
+      /* ================================================================
+         CTA BUTTON
+         ================================================================ */
+      .cta-button {
+        display: inline-block;
+        background: var(--gold);
+        color: var(--parchment);
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 600;
+        padding: 14px 40px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        letter-spacing: 0.03em;
+        transition: all 0.4s;
+        margin-top: 24px;
+      }
+      .cta-button:hover {
+        box-shadow: 0 8px 32px rgba(139, 105, 20, 0.25);
+        transform: translateY(-2px);
+      }
+
+      /* ================================================================
+         FOOTER
+         ================================================================ */
+      .footer {
+        border-top: 1px solid rgba(196, 169, 107, 0.3);
+        padding-top: 16px;
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+      }
+      .footer-tagline {
+        font-style: italic;
+        color: var(--ink-light);
+      }
+      .footer-url {
+        color: var(--gold);
+        letter-spacing: 0.08em;
+      }
+
+      /* ================================================================
+         CONTACT BLOCK
+         ================================================================ */
+      .contact-block {
+        font-size: 14px;
+        color: var(--ink-light);
+        line-height: 1.8;
+        margin-top: 24px;
+      }
+      .contact-block a {
+        color: var(--gold);
+        text-decoration: none;
+      }
+
+      /* ================================================================
+         PAYBACK HIGHLIGHT
+         ================================================================ */
+      .payback-highlight {
+        text-align: center;
+        margin: 24px 0;
+        padding: 20px;
+        background: var(--parchment-dark);
+        border: 1px solid rgba(196, 169, 107, 0.2);
+      }
+      .payback-highlight .metric-label {
+        margin-bottom: 8px;
+      }
+      .payback-highlight .metric-value {
+        font-size: clamp(32px, 4vw, 48px);
+      }
+
+      /* ================================================================
+         ALTERNATIVE PRICING NOTE
+         ================================================================ */
+      .alt-pricing-note {
+        font-size: 14px;
+        font-style: italic;
+        color: var(--ink-light);
+        line-height: 1.6;
+        margin-top: 12px;
+        padding: 12px 0;
+      }
+
+      /* ================================================================
+         PHASE SUBHEADING
+         ================================================================ */
+      .phase-subheading {
+        font-family: var(--body);
+        font-size: 13px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 16px;
+        margin-top: 36px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(196, 169, 107, 0.2);
+      }
+
+      /* ================================================================
+         CHALLENGES LIST
+         ================================================================ */
+      .challenges-list {
+        list-style: none;
+        padding: 0;
+        margin: 12px 0 20px 0;
+      }
+      .challenges-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 5px 0;
+        font-size: 15px;
+        color: var(--ink-light);
+        line-height: 1.5;
+      }
+      .challenges-list li::before {
+        content: "\25B8";
+        color: var(--gold);
+        font-size: 12px;
+        flex-shrink: 0;
+        margin-top: 3px;
+      }
+
+      /* ================================================================
+         RESPONSIVE
+         ================================================================ */
+      @media (max-width: 768px) {
+        html {
+          scroll-snap-type: none;
+          zoom: 1;
+        }
+        .chapter {
+          padding: 60px 24px;
+          height: auto;
+          scroll-snap-align: none;
+          overflow-y: visible;
+        }
+        .two-col {
+          grid-template-columns: 1fr;
+          gap: 32px;
+        }
+        .diff-grid {
+          grid-template-columns: 1fr;
+        }
+        .progress-sidebar {
+          display: none;
+        }
+        .top-bar {
+          padding: 12px 20px;
+        }
+        .timeline-track {
+          display: none;
+        }
+        .timeline-mobile {
+          display: block !important;
+        }
+        .roi-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (min-width: 769px) {
+        .timeline-mobile {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================================================================
+         PROPOSAL DATA — Edit this block to customize for each client
+         ================================================================ -->
+    <script>
+      const PROPOSAL_DATA = {
+        clientName: "SANO - Moderní výživa zvířat",
+        projectName: "Strategická AI transformace",
+        contactName: "Jana",
+        preparedBy: "Jan Tobolík, Petr Mandík",
+        date: "13.03.2026",
+        validUntil: "13.04.2026",
+        summary: "Na základě dvouhodinového discovery meetingu s vaším týmem jsme identifikovali zásadní příležitost: <strong>systematicky zvýšit produktivitu terénních poradců, zlepšit kvalitu dat pro rozhodování a posílit konkurenční pozici SANO</strong> na trhu, kde vás tlačí investorské skupiny cenou — ale nikdo vás nepřekonává kvalitou poradenství. Navrhujeme fázovaný přístup: začneme placenou analýzou 3 klíčových oddělení, která odhalí konkrétní příležitosti a překážky.",
+        keyMetric: { value: 3, unit: "hod/den", label: "Odhadovaná úspora na poradce" },
+        situationContext: "SANO je etablovanou firmou v oboru výživy a hygieny hospodářských zvířat s mezinárodní působností (ČR, SK, HU, východní DE). Vaší hlavní konkurenční výhodou jsou <strong>dlouhodobé vztahy s chovateli a špičkové poradenství</strong> — jak sami říkáte: <em>\u201EMůžou být levnější, ale nikdo není lepší.\u201C</em>",
+        situationChallenges: [
+          "Investorské skupiny (25–30 % trhu) konkurují cenou v tendrech",
+          "Kapacitní limity poradců — Radek má 3–4 schůzky denně, zápisy nejsou jeho oblíbená činnost",
+          "Fragmentace dat — Crystal Cow, MyDVS, Adito, Comarch — každý systém má svá data, ale chybí jednotný pohled",
+          "Unifikace IT z německé centrály — ERP Comarch rolovaný globálně, bezpečnostní politika pod dohledem Lukase"
+        ],
+        currentSituation: [
+          { quote: "Kolega Radek mívá tři, čtyři schůzky denně… zápisy nejsou jeho nejoblíbenější činností… výhodou obrovskou toho Plaudu je, že dělá výtahy z toho rozhovoru. — Jana" },
+          { quote: "Pokud z deseti podniků aspoň šest sedm bude mít fakt špičkové výsledky, tak s náma do toho půjdou. — Jirka" },
+          { quote: "AI nám může pomoct hlavně zvyšovat poradenskou úroveň… šéf chce vědět, kolik mu vyděláte. — Speaker 3" },
+          { quote: "Vy jste první, který poslouchají… kladete správné otázky… že s váma půjdeme správným směrem. — Jirka" }
+        ],
+        opportunities: [
+          { title: "Automatizace terénních zápisů", desc: "Přepis, sumarizace, follow-up, integrace do CRM — úspora desítek hodin měsíčně na poradce" },
+          { title: "AI asistenti pro přípravu na schůzky", desc: "Role-based materiály a argumentace dle typologie protistrany" },
+          { title: "Datové dashboardy pro rozhodování", desc: "Jednotný pohled přes Crystal Cow / MyDVS / Adito" },
+          { title: "Knowledge capture a standardizace", desc: "Přenos know-how, playbook pro poradce, rychlejší onboarding" },
+          { title: "Marketing — systematizace a AI podpora", desc: "Plán, schvalování, tvorba obsahu řečí chovatelů" },
+          { title: "AI překlad a cross-country spolupráce", desc: "Nahrávání, překlad DE/CZ, lepší spolupráce s německou centrálou" }
+        ],
+        scopeIn: [
+          "Fáze 0: Kritická analýza 3 klíčových oddělení (terénní poradenství, marketing, obchod/CRM)",
+          "3× strukturovaný auditní den přímo s lidmi v odděleních (7h/den)",
+          "Mapování současných procesů — krok po kroku, kde vznikají data, kde se ztrácí čas",
+          "Identifikace překážek — bezpečnost, governance, vztahy CZ/DE, technické limity",
+          "Návrhy konkrétních automatizací a AI nástrojů s prioritizací dle dopadu",
+          "Procesní mapa každého oddělení (as-is stav)",
+          "Implementační plán na úrovni oddělení + strategická roadmapa pro vedení",
+          "AI readiness assessment — kde jste dnes a co je potřeba pro další krok"
+        ],
+        scopeOut: [
+          "Implementace řešení (Fáze 1 — navazující, samostatná objednávka)",
+          "Změny v ERP Comarch nebo jiných produkčních systémech",
+          "Migrace nebo úpravy dat v Crystal Cow / MyDVS / Adito",
+          "Hardware a infrastruktura"
+        ],
+        tools: ["Plaud", "Crystal Cow", "MyDVS", "Adito", "Comarch", "Azure/M365"],
+        deliverables: [
+          "Procesní mapa každého oddělení (as-is stav)",
+          "Seznam příležitostí s odhadem dopadu a náročnosti",
+          "Identifikace překážek (security, governance, DE centrála, data quality)",
+          "Implementační plán na úrovni oddělení — co, jak, kdo, kdy",
+          "Rámec kroků pro firmu jako celek — strategická roadmapa pro vedení",
+          "AI readiness assessment"
+        ],
+        timeline: [
+          { phase: "Příprava", output: "Sladění cílů, výběr oddělení, logistika", timeframe: "Týden 1", notes: "Domluvíme kontaktní osoby a termíny" },
+          { phase: "Auditní dny", output: "3× strukturovaný den v odděleních", timeframe: "Týden 2–3", notes: "Ráno: procesy · Dopoledne: překážky · Odpoledne: návrhy · Závěr: quick wins" },
+          { phase: "Zpracování", output: "Analýza záznamů, procesní mapy, návrhy", timeframe: "Týden 3–4", notes: "Interní zpracování výstupů" },
+          { phase: "Prezentace výstupů", output: "Prezentace vedení + implementační plán", timeframe: "Týden 4–5", notes: "Strategická roadmapa + konkrétní next steps" }
+        ],
+        roi: [
+          { metric: "Automatizace terénních zápisů", before: "~45 min / schůzka", after: "~5 min / schůzka", benefit: "Úspora 2–3h denně na poradce" },
+          { metric: "AI asistenti pro přípravu na schůzky", before: "Manuální, nesystematická", after: "AI brief, 5 min", benefit: "Vyšší win-rate, lepší argumentace" },
+          { metric: "Datové dashboardy pro rozhodování", before: "Roztříštěný, ad-hoc", after: "Dashboard, real-time", benefit: "Rychlejší rozhodování, konec hašení" },
+          { metric: "Knowledge capture a standardizace", before: "Měsíce učení od kolegů", after: "Strukturovaný playbook", benefit: "Onboarding zkrácen o 30–50 %" },
+          { metric: "Marketing — systematizace a AI", before: "Ad-hoc, nízká kadence", after: "Systém + AI tvorba", benefit: "3× více obsahu při stejném čase" },
+          { metric: "AI překlad a cross-country", before: "Ruční překlady, bariéry", after: "Automatický přepis a překlad", benefit: "Úspora 5–10h týdně na koordinaci" }
+        ],
+        paybackText: "6–12",
+        priceItems: [
+          { item: "Auditní den — oddělení 1", price: "60 000" },
+          { item: "Auditní den — oddělení 2", price: "60 000" },
+          { item: "Auditní den — oddělení 3", price: "60 000" },
+          { item: "Zpracování, analýza, prezentace výstupů", price: "70 000" }
+        ],
+        totalPrice: "250 000 Kč",
+        paymentTerms: "50 % při zahájení (125 000 Kč) / 50 % po prezentaci výstupů (125 000 Kč) · Splatnost 14 dnů",
+        alternativePriceItems: [
+          { item: "Auditní den — 1 oddělení", price: "60 000" },
+          { item: "Zpracování a výstupy", price: "30 000" }
+        ],
+        alternativeTotalPrice: "90 000 Kč",
+        alternativeNote: "Pokud chcete nejprve vyzkoušet přístup na jednom oddělení a pak rozšířit, je to možné. Doporučujeme ale rovnou 3 oddělení — teprve průřez ukáže systémové příležitosti.",
+        phase1PriceItems: [
+          { item: "Implementace 1 případu (vč. workshopu, MVP, školení, 3měs. podpory)", price: "~200 000" }
+        ],
+        phase1Note: "Přesná cena a rozsah se stanoví na základě výstupů Fáze 0. Každý případ je navržen s cílem návratnosti do 6–12 měsíců. Ceny jsou orientační.",
+        contacts: [
+          { name: "Petr Mandík", email: "mandik@umelainteligence.cz", phone: "+420 602 705 188" },
+          { name: "Jan Tobolík", email: "tobolik@umelainteligence.cz", phone: "+420 777 010 177" }
+        ],
+        differentiators: [
+          { title: "Konzultanti, ne prodejci nástrojů", desc: "Nejdřív pochopíme váš byznys, pak navrhujeme technologii. AI je lopata a vy ten mozek, ne naopak." },
+          { title: "Zkušenost s firmami vaší velikosti", desc: "Specializace na české SME, které potřebují pragmatická řešení, ne PowerPoint prezentace." },
+          { title: "Respekt k vašemu prostředí", desc: "Pracujeme v rámci vaší bezpečnostní politiky (Azure/M365), navrhujeme vendor-agnostic řešení, respektujeme vztah CZ pobočky s DE centrálou." },
+          { title: "Fázovaný přístup s měřitelnými výsledky", desc: "Nenutíme vás do velké investice naslepo. Každá fáze má jasný výstup, dohodnuté KPIs a hodnotu sama o sobě. Pokud čísla nesedí, řekneme to nahlas — a projekt řízeně zastavíme." }
+        ],
+      };
+    </script>
+
+    <!-- ================================================================
+         TOP BAR
+         ================================================================ -->
+    <nav class="top-bar" id="topBar">
+      <div class="top-bar-logo">Umělá<span>Inteligence</span>.cz</div>
+      <div class="top-bar-meta" id="topBarMeta"></div>
+    </nav>
+
+    <!-- ================================================================
+         PROGRESS SIDEBAR
+         ================================================================ -->
+    <div class="progress-sidebar" id="progressSidebar"></div>
+
+    <!-- ================================================================
+         SECTION 0: HERO
+         ================================================================ -->
+    <section class="chapter hero" id="chapter-0" data-chapter="0">
+      <!-- Rotating compass watermark -->
+      <svg class="hero-compass" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="300" cy="300" r="280" stroke="#8B6914" stroke-width="0.8" opacity="0.5"/>
+        <circle cx="300" cy="300" r="196" stroke="#8B6914" stroke-width="0.6" opacity="0.4" stroke-dasharray="4 4"/>
+        <circle cx="300" cy="300" r="112" stroke="#8B6914" stroke-width="0.4" opacity="0.3"/>
+        <line x1="20" y1="300" x2="580" y2="300" stroke="#8B6914" stroke-width="0.4" opacity="0.35"/>
+        <line x1="300" y1="20" x2="300" y2="580" stroke="#8B6914" stroke-width="0.4" opacity="0.35"/>
+        <line x1="102" y1="102" x2="498" y2="498" stroke="#8B6914" stroke-width="0.3" opacity="0.2"/>
+        <line x1="498" y1="102" x2="102" y2="498" stroke="#8B6914" stroke-width="0.3" opacity="0.2"/>
+        <circle cx="300" cy="300" r="4" fill="#8B6914" opacity="0.4"/>
+      </svg>
+
+      <div class="chapter-inner" style="text-align:center; position:relative; z-index:2;">
+        <div class="hero-overline hero-line"></div>
+        <div class="hero-label hero-fade hero-fade-d1" id="heroLabel">NABÍDKA</div>
+        <h1 class="hero-title hero-fade hero-fade-d2" id="heroTitle"></h1>
+        <p class="hero-subtitle hero-fade hero-fade-d3" id="heroSubtitle"></p>
+        <div class="hero-meta hero-fade hero-fade-d4" id="heroMeta"></div>
+      </div>
+
+      <div class="scroll-hint hero-fade hero-fade-d4">
+        Scrollujte
+        <svg width="20" height="24" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 4 L10 18 M4 14 L10 20 L16 14" stroke="#8B6914" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 1: EXECUTIVE SUMMARY
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-1" data-chapter="1">
+      <div class="chapter-inner">
+        <div class="section-label reveal">01 / Shrnutí</div>
+        <h2 class="section-heading reveal reveal-delay-1" id="summaryHeading">O co jde a proč to dává smysl</h2>
+        <div class="section-body reveal reveal-delay-2" id="summaryBody"></div>
+        <div class="reveal reveal-delay-3" id="metricCard"></div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 2: CLIENT NEEDS
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-2" data-chapter="2">
+      <div class="chapter-inner">
+        <div class="section-label reveal">02 / Pochopení vašich potřeb</div>
+        <h2 class="section-heading reveal reveal-delay-1">Co jsme zjistili a kde vidíme příležitosti</h2>
+        <div class="two-col reveal reveal-delay-2">
+          <div>
+            <div class="col-heading">Současná situace</div>
+            <div id="situationBlock"></div>
+            <div id="painQuotes"></div>
+          </div>
+          <div>
+            <div class="col-heading">Identifikované příležitosti</div>
+            <div id="oppCards"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 3: PROPOSED SOLUTION
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-3" data-chapter="3">
+      <div class="chapter-inner">
+        <div class="section-label reveal">03 / Navrhované řešení</div>
+        <h2 class="section-heading reveal reveal-delay-1">Co uděláme a jak</h2>
+
+        <div class="reveal reveal-delay-2" id="scopePanels"></div>
+
+        <div class="reveal reveal-delay-3">
+          <div class="col-heading" style="margin-top:32px;">Technologie a nástroje</div>
+          <div class="tools-row" id="toolBadges"></div>
+        </div>
+
+        <div class="reveal reveal-delay-4">
+          <div class="col-heading" style="margin-top:32px;">Očekávané výstupy</div>
+          <div id="deliverablesList"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 4: TIMELINE
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-4" data-chapter="4">
+      <div class="chapter-inner">
+        <div class="section-label reveal">04 / Časový plán a milníky</div>
+        <h2 class="section-heading reveal reveal-delay-1">Jak to bude probíhat</h2>
+
+        <div class="timeline-container reveal reveal-delay-2" id="timelineDesktop">
+          <div class="timeline-track">
+            <div class="timeline-track-fill" id="timelineFill"></div>
+            <div class="timeline-nodes" id="timelineNodes"></div>
+          </div>
+        </div>
+
+        <!-- Mobile timeline (vertical) -->
+        <div class="timeline-mobile reveal reveal-delay-2" id="timelineMobile"></div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 5: ROI
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-5" data-chapter="5">
+      <div class="chapter-inner">
+        <div class="section-label reveal">05 / Návratnost investice</div>
+        <h2 class="section-heading reveal reveal-delay-1">Co vám to přinese</h2>
+        <div class="reveal reveal-delay-2">
+          <div class="col-heading">Návratnost investice (ROI)</div>
+          <div class="roi-grid" id="roiGrid"></div>
+          <div class="payback-highlight" id="paybackCard"></div>
+        </div>
+        <!-- Conservative estimate note -->
+        <div class="section-body reveal reveal-delay-3" style="margin-top: 24px;">
+          <strong>Náš cíl:</strong> Každé implementované řešení navrhujeme tak, aby se investice <strong>vrátila do 6–12 měsíců</strong>. Průměrná cena jednoho případu je ~200 000 Kč. Fáze 0 (analýza) identifikuje, které případy přinesou nejvyšší ROI právě u vás.
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 6: PHASE 0 PRICING
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-6" data-chapter="6">
+      <div class="chapter-inner">
+        <div class="section-label reveal">06 / Fáze 0 — Investice</div>
+        <h2 class="section-heading reveal reveal-delay-1">Kolik to stojí</h2>
+        <div class="reveal reveal-delay-2">
+          <div class="col-heading">Fáze 0: Kritická analýza (3 oddělení)</div>
+          <table class="price-table" id="priceTable">
+            <thead>
+              <tr><th>Položka</th><th>Cena bez DPH</th></tr>
+            </thead>
+            <tbody id="priceBody"></tbody>
+          </table>
+          <div class="payment-terms" id="paymentTerms"></div>
+        </div>
+        <div class="reveal reveal-delay-3" id="altPricingBlock"></div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 7: PHASE 1 PRICING + GUARANTEE
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-7" data-chapter="7">
+      <div class="chapter-inner">
+        <div class="section-label reveal">07 / Fáze 1 — Orientační investice</div>
+        <h2 class="section-heading reveal reveal-delay-1">Kam to může vést</h2>
+        <div class="section-body reveal reveal-delay-2" style="margin-bottom: 24px;">
+          Na základě výstupů z Fáze 0 navrhneme <strong>pilotní implementaci</strong> v 1–3 odděleních. Typicky zahrnuje automatizaci terénních zápisů, AI asistenta pro přípravu na schůzky, dashboard pro vedení a knowledge base pro poradce.
+        </div>
+        <div class="reveal reveal-delay-3" id="phase1PricingBlock"></div>
+        <div class="reveal reveal-delay-4" id="guaranteeCard"></div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 8: WHY US
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-8" data-chapter="8">
+      <div class="chapter-inner">
+        <div class="section-label reveal">08 / Proč UměláInteligence.cz</div>
+        <h2 class="section-heading reveal reveal-delay-1">Co nás odlišuje</h2>
+        <div class="diff-grid reveal reveal-delay-2" id="diffGrid"></div>
+        <div class="brand-tagline reveal reveal-delay-3">
+          Praktická AI pro byznys.<br/>Bez hype, s měřitelným dopadem.
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ================================================================
+         SECTION 9: NEXT STEPS
+         ================================================================ -->
+    <section class="chapter chapter-locked" id="chapter-9" data-chapter="9">
+      <div class="chapter-inner">
+        <div class="section-label reveal">09 / Další kroky</div>
+        <h2 class="section-heading reveal reveal-delay-1">Jak pokračujeme</h2>
+
+        <div class="steps-timeline reveal reveal-delay-2">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-title">Potvrzení a výběr oddělení</div>
+            <div class="step-desc">Společně vybereme 3 oddělení pro Fázi 0</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-title">Smluvní rámec</div>
+            <div class="step-desc">Rámcová smlouva, NDA a objednávka — formální základ spolupráce</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-title">Logistika</div>
+            <div class="step-desc">Domluvíme termíny auditních dnů (ideálně v průběhu 2 týdnů)</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-title">Zahájení</div>
+            <div class="step-desc">Fakturace zálohy 50 %, start přípravy</div>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-3" id="needsFromYouBlock">
+          <div class="col-heading">Co potřebujeme od vás</div>
+          <div class="scope-item"><span class="scope-item-icon in">&#x25B8;</span> Výběr 3 oddělení a určení kontaktních osob v každém</div>
+          <div class="scope-item"><span class="scope-item-icon in">&#x25B8;</span> Přístup k lidem na 1 den v každém oddělení (ideálně 2–4 klíčoví pracovníci)</div>
+          <div class="scope-item"><span class="scope-item-icon in">&#x25B8;</span> Přehled používaných systémů, nástrojů a datových toků</div>
+          <div class="scope-item"><span class="scope-item-icon in">&#x25B8;</span> Bezpečnostní politika a governance — pravidla pro práci s daty, přístupy, schvalovací procesy</div>
+          <div class="scope-item"><span class="scope-item-icon in">&#x25B8;</span> Stávající strategie a plány — krátkodobé i dlouhodobé cíle, inovační záměry, produktová a procesní roadmapa</div>
+          <div class="scope-item"><span class="scope-item-icon in">&#x25B8;</span> IT infrastruktura — systémová architektura, integrace, role centrály vs. lokální správy</div>
+        </div>
+
+        <div class="validity-card reveal reveal-delay-4" id="validityCard"></div>
+
+        <div class="reveal reveal-delay-5" style="text-align:center;">
+          <a class="cta-button" href="mailto:info@umelainteligence.cz?subject=Nabídka">
+            Pojďme na to &rarr;
+          </a>
+        </div>
+
+        <div class="contact-block reveal reveal-delay-6" style="text-align:center;" id="contactBlock"></div>
+
+        <div class="footer reveal reveal-delay-6">
+          <span class="footer-tagline">Praktická AI pro byznys — s měřitelným dopadem.</span>
+          <span class="footer-url">umelainteligence.cz</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         JAVASCRIPT
+         ================================================================ -->
+    <script>
+      (function() {
+        "use strict";
+
+        const D = PROPOSAL_DATA;
+        const CHAPTER_COUNT = 10; // 0-9
+        const CHAPTER_NAMES = [
+          "Úvod", "Shrnutí", "Potřeby", "Řešení",
+          "Časový plán", "Návratnost", "Fáze 0", "Fáze 1",
+          "Proč my", "Další kroky"
+        ];
+        let currentChapter = 0;
+
+        // ── Render proposal data ──────────────────────────────────────
+        function renderProposal() {
+          // Top bar meta
+          document.getElementById("topBarMeta").textContent =
+            D.clientName + "  \u00B7  " + D.date;
+
+          // Hero
+          document.getElementById("heroTitle").innerHTML =
+            "Nabídka pro <em>" + escapeHtml(D.clientName) + "</em>";
+          document.getElementById("heroSubtitle").textContent = D.projectName;
+          document.getElementById("heroMeta").innerHTML =
+            escapeHtml(D.date) +
+            " <span>\u00B7</span> Připravil: " + escapeHtml(D.preparedBy) +
+            " <span>\u00B7</span> Platnost: " + escapeHtml(D.validUntil);
+
+          // Summary
+          document.getElementById("summaryBody").innerHTML = D.summary;
+          document.getElementById("metricCard").innerHTML =
+            '<div class="metric-card">' +
+            '  <div>' +
+            '    <div class="metric-label">' + escapeHtml(D.keyMetric.label) + '</div>' +
+            '    <div style="display:flex; align-items:baseline; gap:8px;">' +
+            '      <span class="metric-value" data-count-to="' + D.keyMetric.value + '">0</span>' +
+            '      <span class="metric-unit">' + escapeHtml(D.keyMetric.unit) + '</span>' +
+            '    </div>' +
+            '  </div>' +
+            '</div>';
+
+          // Situation context + challenges
+          var sb = "";
+          if (D.situationContext) {
+            sb += '<div class="section-body" style="max-width:100%; margin-bottom:16px;">' + D.situationContext + '</div>';
+          }
+          if (D.situationChallenges && D.situationChallenges.length) {
+            sb += '<ul class="challenges-list">';
+            D.situationChallenges.forEach(function(c) {
+              sb += '<li>' + escapeHtml(c) + '</li>';
+            });
+            sb += '</ul>';
+          }
+          document.getElementById("situationBlock").innerHTML = sb;
+
+          // Pain quotes
+          var pq = "";
+          D.currentSituation.forEach(function(s) {
+            pq += '<div class="pain-quote">\u201E' + escapeHtml(s.quote) + '\u201C</div>';
+          });
+          document.getElementById("painQuotes").innerHTML = pq;
+
+          // Opportunity cards
+          var oc = "";
+          D.opportunities.forEach(function(o) {
+            oc += '<div class="opp-card">' +
+              '<div class="opp-card-title">' + escapeHtml(o.title) + '</div>' +
+              '<div class="opp-card-desc">' + escapeHtml(o.desc) + '</div>' +
+              '</div>';
+          });
+          document.getElementById("oppCards").innerHTML = oc;
+
+          // Scope panels
+          var sp = '';
+          sp += '<div class="scope-panel open" onclick="toggleScope(this)">' +
+            '<div class="scope-header">' +
+            '<div class="scope-header-title"><span class="scope-header-icon">\u25B6</span> Co je zahrnuto</div>' +
+            '</div>' +
+            '<div class="scope-body">';
+          D.scopeIn.forEach(function(s) {
+            sp += '<div class="scope-item"><span class="scope-item-icon in">\u2713</span> ' + escapeHtml(s) + '</div>';
+          });
+          sp += '</div></div>';
+
+          sp += '<div class="scope-panel" onclick="toggleScope(this)">' +
+            '<div class="scope-header">' +
+            '<div class="scope-header-title"><span class="scope-header-icon">\u25B6</span> Co není zahrnuto</div>' +
+            '</div>' +
+            '<div class="scope-body">';
+          D.scopeOut.forEach(function(s) {
+            sp += '<div class="scope-item"><span class="scope-item-icon out">\u2717</span> ' + escapeHtml(s) + '</div>';
+          });
+          sp += '</div></div>';
+          document.getElementById("scopePanels").innerHTML = sp;
+
+          // Tool badges
+          var tb = "";
+          D.tools.forEach(function(t) {
+            tb += '<span class="tool-badge">' + escapeHtml(t) + '</span>';
+          });
+          document.getElementById("toolBadges").innerHTML = tb;
+
+          // Deliverables
+          var dl = "";
+          D.deliverables.forEach(function(d, i) {
+            dl += '<div class="deliverable-item">' +
+              '<span class="deliverable-num">' + (i + 1) + '</span>' +
+              '<span class="deliverable-text">' + escapeHtml(d) + '</span>' +
+              '</div>';
+          });
+          document.getElementById("deliverablesList").innerHTML = dl;
+
+          // Timeline (desktop)
+          var tn = "";
+          D.timeline.forEach(function(t, i) {
+            tn += '<div class="timeline-node" onclick="toggleTimelineNode(this)" data-index="' + i + '">' +
+              '<div class="timeline-dot"></div>' +
+              '<div class="timeline-node-label">' + escapeHtml(t.phase) + '</div>' +
+              '<div class="timeline-detail">' +
+              '<div class="timeline-detail-title">' + escapeHtml(t.phase) + '</div>' +
+              '<div class="timeline-detail-row"><strong>Výstup:</strong> ' + escapeHtml(t.output) + '</div>' +
+              '<div class="timeline-detail-row"><strong>Kdy:</strong> ' + escapeHtml(t.timeframe) + '</div>' +
+              '<div class="timeline-detail-row"><strong>Pozn.:</strong> ' + escapeHtml(t.notes) + '</div>' +
+              '</div>' +
+              '</div>';
+          });
+          document.getElementById("timelineNodes").innerHTML = tn;
+
+          // Timeline (mobile)
+          var tm = '<div class="steps-timeline">';
+          D.timeline.forEach(function(t, i) {
+            tm += '<div class="step-item">' +
+              '<div class="step-num">' + (i + 1) + '</div>' +
+              '<div class="step-title">' + escapeHtml(t.phase) + '</div>' +
+              '<div class="step-desc">' + escapeHtml(t.output) + ' \u2014 ' + escapeHtml(t.timeframe) + '</div>' +
+              '</div>';
+          });
+          tm += '</div>';
+          document.getElementById("timelineMobile").innerHTML = tm;
+
+          // ROI grid
+          var rg = "";
+          D.roi.forEach(function(r) {
+            rg += '<div class="roi-card">' +
+              '<div class="roi-card-metric">' + escapeHtml(r.metric) + '</div>' +
+              '<div class="roi-card-before">' + escapeHtml(r.before) + '</div>' +
+              '<div class="roi-card-after">' + escapeHtml(r.after) + '</div>' +
+              '<div class="roi-card-benefit">' + escapeHtml(r.benefit) + '</div>' +
+              '</div>';
+          });
+          document.getElementById("roiGrid").innerHTML = rg;
+
+          // Payback
+          document.getElementById("paybackCard").innerHTML =
+            '<div class="metric-label">Cílová návratnost každého implementovaného případu</div>' +
+            '<div class="metric-value">' + escapeHtml(D.paybackText) + '</div>' +
+            '<div class="metric-unit">měsíců</div>';
+
+          // Price table
+          var pb = "";
+          D.priceItems.forEach(function(p) {
+            pb += '<tr><td>' + escapeHtml(p.item) + '</td><td>' + escapeHtml(p.price) + ' Kč</td></tr>';
+          });
+          pb += '<tr class="price-total-row"><td>Celkem</td><td>' + escapeHtml(D.totalPrice) + '</td></tr>';
+          document.getElementById("priceBody").innerHTML = pb;
+
+          // Payment terms
+          document.getElementById("paymentTerms").textContent = D.paymentTerms;
+
+          // Alternative pricing
+          if (D.alternativePriceItems && D.alternativePriceItems.length) {
+            var ap = '<div class="phase-subheading">Alternativně — start s jedním oddělením</div>';
+            ap += '<table class="price-table"><thead><tr><th>Položka</th><th>Cena bez DPH</th></tr></thead><tbody>';
+            D.alternativePriceItems.forEach(function(p) {
+              ap += '<tr><td>' + escapeHtml(p.item) + '</td><td>' + escapeHtml(p.price) + ' Kč</td></tr>';
+            });
+            ap += '<tr class="price-total-row"><td>Celkem</td><td>' + escapeHtml(D.alternativeTotalPrice) + '</td></tr>';
+            ap += '</tbody></table>';
+            if (D.alternativeNote) {
+              ap += '<div class="alt-pricing-note">' + escapeHtml(D.alternativeNote) + '</div>';
+            }
+            document.getElementById("altPricingBlock").innerHTML = ap;
+          }
+
+          // Phase 1 pricing
+          if (D.phase1PriceItems && D.phase1PriceItems.length) {
+            var p1 = '<div class="phase-subheading">Fáze 1: Pilotní implementace (orientační)</div>';
+            p1 += '<table class="price-table"><thead><tr><th>Položka</th><th>Cena bez DPH</th></tr></thead><tbody>';
+            D.phase1PriceItems.forEach(function(p) {
+              p1 += '<tr><td>' + escapeHtml(p.item) + '</td><td>' + escapeHtml(p.price) + ' Kč</td></tr>';
+            });
+            p1 += '</tbody></table>';
+            if (D.phase1Note) {
+              p1 += '<div class="alt-pricing-note">' + escapeHtml(D.phase1Note) + '</div>';
+            }
+            document.getElementById("phase1PricingBlock").innerHTML = p1;
+          }
+
+          // Guarantee
+          document.getElementById("guaranteeCard").innerHTML =
+            '<div class="guarantee">' +
+            '  <div class="guarantee-icon">' +
+            '    <svg width="32" height="32" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+            '      <path d="M15 2.5L3.5 7.5v8c0 6.6 5 12.8 11.5 14.5C21 28.3 26 22.1 26 15.5v-8L15 2.5z" stroke="#8B6914" stroke-width="1.1" fill="none"/>' +
+            '      <path d="M9.5 15.5l4 4 7.5-8" stroke="#8B6914" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '    </svg>' +
+            '  </div>' +
+            '  <div>' +
+            '    <div class="guarantee-label">Kill / Switch Garance</div>' +
+            '    <div class="guarantee-title">Výsledky, nebo zastavíme. Bez výmluv.</div>' +
+            '    <div class="guarantee-text">' +
+            '      Pokud pilot do <strong>90 dnů</strong> nedosáhne dohodnutých KPIs, ' +
+            '      projekt <strong>řízeně zastavíme</strong> a kapacitu přemístíme. ' +
+            '      Projekt, který pokračuje navzdory číslům, je nejdražší projekt.' +
+            '    </div>' +
+            '  </div>' +
+            '</div>';
+
+          // Differentiators
+          var dg = "";
+          var icons = [
+            // Compass
+            '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#8B6914" stroke-width="1"/><circle cx="14" cy="14" r="2" fill="#8B6914"/><line x1="14" y1="2" x2="14" y2="26" stroke="#8B6914" stroke-width="0.5"/><line x1="2" y1="14" x2="26" y2="14" stroke="#8B6914" stroke-width="0.5"/></svg>',
+            // Diamond
+            '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="14" y="2" width="16" height="16" transform="rotate(45 14 2)" stroke="#8B6914" stroke-width="1"/><circle cx="14" cy="14" r="3" stroke="#8B6914" stroke-width="0.8"/></svg>',
+            // Circle grid
+            '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" stroke="#8B6914" stroke-width="1"/><circle cx="14" cy="14" r="6" stroke="#8B6914" stroke-width="0.6" stroke-dasharray="2 2"/><line x1="8" y1="8" x2="20" y2="20" stroke="#8B6914" stroke-width="0.5"/><line x1="20" y1="8" x2="8" y2="20" stroke="#8B6914" stroke-width="0.5"/></svg>',
+            // Shield
+            '<svg width="28" height="28" viewBox="0 0 30 30" fill="none"><path d="M15 2.5L3.5 7.5v8c0 6.6 5 12.8 11.5 14.5C21 28.3 26 22.1 26 15.5v-8L15 2.5z" stroke="#8B6914" stroke-width="1"/></svg>'
+          ];
+          D.differentiators.forEach(function(d, i) {
+            dg += '<div class="diff-card">' +
+              '<div class="diff-card-icon">' + icons[i % icons.length] + '</div>' +
+              '<div class="diff-card-title">' + escapeHtml(d.title) + '</div>' +
+              '<div class="diff-card-desc">' + escapeHtml(d.desc) + '</div>' +
+              '</div>';
+          });
+          document.getElementById("diffGrid").innerHTML = dg;
+
+          // Validity
+          document.getElementById("validityCard").innerHTML =
+            'Tato nabídka je platná do <strong>' + escapeHtml(D.validUntil) + '</strong>';
+
+          // Contact
+          if (D.contacts && D.contacts.length) {
+            var cb = "";
+            D.contacts.forEach(function(c, i) {
+              cb += '<strong>' + escapeHtml(c.name) + '</strong><br/>' +
+                '\u{1F4DE} ' + escapeHtml(c.phone) + '<br/>' +
+                '\u{1F4E7} <a href="mailto:' + escapeHtml(c.email) + '">' + escapeHtml(c.email) + '</a>';
+              if (i < D.contacts.length - 1) {
+                cb += '<br/><br/>';
+              }
+            });
+            cb += '<br/><br/>\u{1F310} <a href="https://umelainteligence.cz">umelainteligence.cz</a>';
+            document.getElementById("contactBlock").innerHTML = cb;
+          } else {
+            document.getElementById("contactBlock").innerHTML =
+              escapeHtml(D.preparedBy) + '<br/>' +
+              '<a href="mailto:info@umelainteligence.cz">info@umelainteligence.cz</a><br/>' +
+              '<a href="https://umelainteligence.cz">umelainteligence.cz</a>';
+          }
+        }
+
+        function escapeHtml(text) {
+          var div = document.createElement("div");
+          div.textContent = text;
+          return div.innerHTML;
+        }
+
+        // ── Build progress sidebar ────────────────────────────────────
+        function buildSidebar() {
+          var sb = document.getElementById("progressSidebar");
+          var html = "";
+          for (var i = 0; i < CHAPTER_COUNT; i++) {
+            if (i > 0) {
+              html += '<div class="progress-line" data-line="' + i + '"></div>';
+            }
+            html += '<div class="progress-dot locked" data-dot="' + i + '">' +
+              '<span class="progress-dot-label">' + CHAPTER_NAMES[i] + '</span>' +
+              '</div>';
+          }
+          sb.innerHTML = html;
+          updateSidebar();
+        }
+
+        function updateSidebar() {
+          var dots = document.querySelectorAll(".progress-dot");
+          var lines = document.querySelectorAll(".progress-line");
+          dots.forEach(function(dot, i) {
+            dot.className = "progress-dot";
+            if (i < currentChapter) {
+              dot.classList.add("completed");
+              dot.onclick = function() { scrollToChapter(i); };
+            } else if (i === currentChapter) {
+              dot.classList.add("active");
+              dot.onclick = function() { scrollToChapter(i); };
+            } else {
+              var ch = document.getElementById("chapter-" + i);
+              if (ch && !ch.classList.contains("chapter-locked")) {
+                dot.classList.add("completed");
+                dot.onclick = function() { scrollToChapter(i); };
+              } else {
+                dot.classList.add("locked");
+                dot.onclick = null;
+              }
+            }
+          });
+          lines.forEach(function(line, i) {
+            if (i < currentChapter) {
+              line.classList.add("active");
+            } else {
+              line.classList.remove("active");
+            }
+          });
+        }
+
+        function scrollToChapter(index) {
+          var el = document.getElementById("chapter-" + index);
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // ── Chapter unlock system ─────────────────────────────────────
+        function unlockChapter(index) {
+          var ch = document.getElementById("chapter-" + index);
+          if (!ch || !ch.classList.contains("chapter-locked")) return;
+          ch.classList.remove("chapter-locked");
+          ch.style.scrollSnapAlign = "start";
+          updateSidebar();
+        }
+
+        function unlockAll() {
+          for (var i = 0; i < CHAPTER_COUNT; i++) unlockChapter(i);
+        }
+
+        function lockAll() {
+          for (var i = 1; i < CHAPTER_COUNT; i++) {
+            var ch = document.getElementById("chapter-" + i);
+            if (ch) {
+              ch.classList.add("chapter-locked");
+              // Reset reveal animations
+              ch.querySelectorAll(".reveal.visible").forEach(function(el) {
+                el.classList.remove("visible");
+              });
+            }
+          }
+          currentChapter = 0;
+          updateSidebar();
+          scrollToChapter(0);
+        }
+
+        // ── IntersectionObserver for reveals ──────────────────────────
+        var revealObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              // Trigger counters
+              entry.target.querySelectorAll("[data-count-to]").forEach(function(el) {
+                animateValue(el, 0, parseInt(el.dataset.countTo), 1500);
+              });
+            }
+          });
+        }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+
+        // ── IntersectionObserver for chapter unlock ───────────────────
+        var chapterObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+            var chapterIndex = parseInt(entry.target.dataset.chapter);
+            if (chapterIndex >= currentChapter) {
+              currentChapter = chapterIndex;
+              // Unlock next chapter
+              if (chapterIndex + 1 < CHAPTER_COUNT) {
+                unlockChapter(chapterIndex + 1);
+              }
+              updateSidebar();
+            }
+          });
+        }, { threshold: 0.5 });
+
+        // ── Top bar visibility ────────────────────────────────────────
+        var topBarObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            var topBar = document.getElementById("topBar");
+            if (entry.isIntersecting) {
+              topBar.classList.remove("visible");
+            } else {
+              topBar.classList.add("visible");
+            }
+          });
+        }, { threshold: 0.3 });
+
+        // ── Animated counter ──────────────────────────────────────────
+        function animateValue(element, start, end, duration) {
+          if (element.dataset.animated) return;
+          element.dataset.animated = "true";
+          var startTime = null;
+          function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = Math.min((timestamp - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            element.textContent = Math.floor(eased * (end - start) + start);
+            if (progress < 1) {
+              requestAnimationFrame(step);
+            } else {
+              element.textContent = end;
+            }
+          }
+          requestAnimationFrame(step);
+        }
+
+        // ── Timeline node toggle ──────────────────────────────────────
+        window.toggleTimelineNode = function(node) {
+          var wasExpanded = node.classList.contains("expanded");
+          // Close all
+          document.querySelectorAll(".timeline-node.expanded").forEach(function(n) {
+            n.classList.remove("expanded");
+          });
+          if (!wasExpanded) {
+            node.classList.add("expanded");
+          }
+        };
+
+        // ── Scope panel toggle ────────────────────────────────────────
+        window.toggleScope = function(panel) {
+          panel.classList.toggle("open");
+        };
+
+        // ── Timeline fill animation on reveal ─────────────────────────
+        var timelineRevealed = false;
+        var timelineObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting && !timelineRevealed) {
+              timelineRevealed = true;
+              var fill = document.getElementById("timelineFill");
+              if (fill) fill.style.width = "100%";
+              // Stagger reveal nodes
+              var nodes = document.querySelectorAll(".timeline-node");
+              nodes.forEach(function(node, i) {
+                setTimeout(function() {
+                  node.classList.add("revealed");
+                }, i * 250);
+              });
+            }
+          });
+        }, { threshold: 0.3 });
+
+        // ── Keyboard navigation ───────────────────────────────────────
+        document.addEventListener("keydown", function(e) {
+          if (e.key === "u" || e.key === "U") {
+            unlockAll();
+          } else if (e.key === "l" || e.key === "L") {
+            lockAll();
+          } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+            e.preventDefault();
+            var next = Math.min(currentChapter + 1, CHAPTER_COUNT - 1);
+            scrollToChapter(next);
+          } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+            e.preventDefault();
+            var prev = Math.max(currentChapter - 1, 0);
+            scrollToChapter(prev);
+          }
+        });
+
+        // ── Initialize ───────────────────────────────────────────────
+        document.addEventListener("DOMContentLoaded", function() {
+          renderProposal();
+          buildSidebar();
+
+          // Observe reveals
+          document.querySelectorAll(".reveal").forEach(function(el) {
+            revealObserver.observe(el);
+          });
+
+          // Observe chapters for unlock
+          for (var i = 0; i < CHAPTER_COUNT; i++) {
+            var ch = document.getElementById("chapter-" + i);
+            if (ch) chapterObserver.observe(ch);
+          }
+
+          // Top bar observer (hero section)
+          var hero = document.getElementById("chapter-0");
+          if (hero) topBarObserver.observe(hero);
+
+          // Timeline observer
+          var tl = document.getElementById("timelineDesktop");
+          if (tl) timelineObserver.observe(tl);
+
+          // Auto-unlock first chapter after 2s
+          setTimeout(function() {
+            unlockChapter(1);
+          }, 2000);
+
+          // Initially locked chapters shouldn't snap
+          document.querySelectorAll(".chapter-locked").forEach(function(ch) {
+            ch.style.scrollSnapAlign = "none";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
